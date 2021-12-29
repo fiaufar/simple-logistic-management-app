@@ -8,9 +8,17 @@ use App\Models\Order;
 use App\Models\OrderTrack;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
+    private $ORDER_TYPE = [
+        'Order picked up',
+        'Processed at warehouse',
+        'Out for delivery',
+        'Package Received'
+    ];
+
     public function store(CreateOrderRequest $request)
     {
         $data = $request->all();
@@ -19,13 +27,19 @@ class OrderController extends Controller
         DB::beginTransaction();
         try {
             $order = Order::create($data);
-            $orderTrack = OrderTrack::create([
-                'order_id' => $order->id,
-                'title' => 'Order picked up',
-                'description' => 'Order picked up',
-                'created_by' => auth()->user()->id
-            ]);
+
+            // Insert some random tracking updates
+            $randomNum = rand(1,4);
+            for ($i=0; $i < $randomNum; $i++) {
+                $orderTrack = OrderTrack::create([
+                    'order_id' => $order->id,
+                    'title' => $this->ORDER_TYPE[$i],
+                    'description' => $this->ORDER_TYPE[$i],
+                    'created_by' => auth()->user()->id
+                ]);
+            }
         } catch (\Throwable $th) {
+            Log::info($th->getMessage());
             DB::rollBack();
             return response()->json(['message' => 'Create Order Failed!', 'success' => false], 500);
         }
@@ -48,39 +62,5 @@ class OrderController extends Controller
         }
 
         return response()->json(['data' => $order, 'success' => true], 200);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }

@@ -19,6 +19,8 @@ class OrderTrack extends Model
     ];
 
     protected $hidden = [
+        'id',
+        'order_id',
         'created_by',
         'updated_by',
     ];
