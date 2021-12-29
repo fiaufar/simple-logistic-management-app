@@ -61,7 +61,6 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order Not Found!', 'success' => false], 404);
         }
 
-
         return response()->json(['data' => $order, 'success' => true], 200);
     }
 
@@ -74,7 +73,7 @@ class OrderController extends Controller
     public function orderTracks($id)
     {
         $orderTrack = OrderTrack::where(['order_id' => $id])->get();
-        if (empty($orderTrack)) {
+        if (count($orderTrack) == 0) {
             return response()->json(['message' => 'Order Not Found!', 'success' => false], 404);
         }
 
