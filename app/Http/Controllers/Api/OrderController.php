@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateOrderRequest;
@@ -60,6 +60,7 @@ class OrderController extends Controller
         if (empty($order)) {
             return response()->json(['message' => 'Order Not Found!', 'success' => false], 404);
         }
+
 
         return response()->json(['data' => $order, 'success' => true], 200);
     }
