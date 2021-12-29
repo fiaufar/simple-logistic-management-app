@@ -22,6 +22,8 @@ class CreateOrdersTable extends Migration
             $table->text('reciever_name');
             $table->text('reciever_address');
             $table->string('reciever_phone', 15);
+            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
         });
     }

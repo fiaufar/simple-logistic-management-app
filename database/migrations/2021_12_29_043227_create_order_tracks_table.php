@@ -18,6 +18,8 @@ class CreateOrderTracksTable extends Migration
             $table->unsignedBigInteger('order_id');
             $table->text('title');
             $table->text('description');
+            $table->unsignedBigInteger('created_by');
+            $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
         });
     }
