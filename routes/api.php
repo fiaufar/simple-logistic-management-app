@@ -23,5 +23,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::post('/order', [App\Http\Controllers\API\OrderController::class, 'store']);
-    Route::get('/order/{order_id}', [App\Http\Controllers\API\OrderController::class, 'show']);
+    Route::get('/order/{order_id}', [App\Http\Controllers\API\OrderController::class, 'orderTracks']);
+    Route::get('/order/detail/{order_id}', [App\Http\Controllers\API\OrderController::class, 'orderDetail']);
 });

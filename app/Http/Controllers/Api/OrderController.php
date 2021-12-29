@@ -54,7 +54,7 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function orderDetail($id)
     {
         $order = Order::with('orderTracks')->find($id);
         if (empty($order)) {
@@ -62,5 +62,21 @@ class OrderController extends Controller
         }
 
         return response()->json(['data' => $order, 'success' => true], 200);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function orderTracks($id)
+    {
+        $orderTrack = OrderTrack::where(['order_id' => $id])->get();
+        if (empty($orderTrack)) {
+            return response()->json(['message' => 'Order Not Found!', 'success' => false], 404);
+        }
+
+        return response()->json(['data' => $orderTrack, 'success' => true], 200);
     }
 }
