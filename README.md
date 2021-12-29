@@ -32,11 +32,11 @@ php artisan serve
 </code></pre>
 - Access to http://127.0.0.1:8000/
 
-##Route List
+## Route List
 <table>
     <tr>
-        <th>Method</td>
         <th>Route</td>
+        <th>Method</td>
     </tr>
     <tr>
         <th>/api/register</td>
@@ -51,11 +51,11 @@ php artisan serve
         <th>POST</td>
     </tr>
     <tr>
-        <th>/api/order/<order_id></td>
+        <th>/api/order/{order_id}</td>
         <th>GET</td>
     </tr>
     <tr>
-        <th>/api/order/detail/<order_id></td>
+        <th>/api/order/detail/{order_id}</td>
         <th>GET</td>
     </tr>
 </table>
