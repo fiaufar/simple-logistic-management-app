@@ -23,6 +23,21 @@ class Order extends Model
         'updated_by',
     ];
 
+    public static $rules = [
+        'weight' => 'required|integer',
+        'sender_name' => 'required|string|max:25',
+        'sender_address' => 'required|string',
+        'sender_phone' => 'required|string|max:15',
+        'reciever_name' => 'required|string|max:25',
+        'reciever_address' => 'required|string',
+        'reciever_phone' => 'required|string|max:15',
+    ];
+
+    protected $hidden = [
+        'created_by',
+        'updated_by',
+    ];
+
     /**
      * Get all of the orderTrack for the Order
      *
@@ -30,7 +45,7 @@ class Order extends Model
      */
     public function orderTracks(): HasMany
     {
-        return $this->hasMany(OrderTrack::class, 'order_id', 'id');
+        return $this->hasMany(OrderTrack::class, 'order_id', 'id')->orderBy('created_at');
     }
 
     /**

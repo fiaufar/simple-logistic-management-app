@@ -18,6 +18,11 @@ class OrderTrack extends Model
         'updated_by',
     ];
 
+    protected $hidden = [
+        'created_by',
+        'updated_by',
+    ];
+
     /**
      * Get the user that owns the OrderTrack
      *
