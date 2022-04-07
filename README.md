@@ -1,4 +1,4 @@
-## Luwjistik API Service
+## Simple Logistic Management App
 
 How to run project : 
 
