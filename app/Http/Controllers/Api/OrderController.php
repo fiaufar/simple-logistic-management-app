@@ -2,81 +2,104 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateOrderRequest;
-use App\Models\Order;
-use App\Models\OrderTrack;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Exception;
+use App\Models\Http;
+use App\Services\OrderService;
 use Illuminate\Support\Facades\Log;
+use App\Services\OrderTrackService;
+use App\Http\Requests\CreateOrderRequest;
 
-class OrderController extends Controller
+class OrderController extends ApiController
 {
-    private $ORDER_TYPE = [
-        'Order picked up',
-        'Processed at warehouse',
-        'Out for delivery',
-        'Package Received'
-    ];
+    protected $orderService;
+    protected $orderTrackService;
 
-    public function store(CreateOrderRequest $request)
+    public function __construct(OrderService $orderService, OrderTrackService $orderTrackService)
     {
-        $data = $request->all();
-        $data['created_by'] = auth()->user()->id;
-
-        DB::beginTransaction();
-        try {
-            $order = Order::create($data);
-
-            // Insert some random tracking updates
-            $randomNum = rand(1,4);
-            for ($i=0; $i < $randomNum; $i++) {
-                $orderTrack = OrderTrack::create([
-                    'order_id' => $order->id,
-                    'title' => $this->ORDER_TYPE[$i],
-                    'description' => $this->ORDER_TYPE[$i],
-                    'created_by' => auth()->user()->id
-                ]);
-            }
-        } catch (\Throwable $th) {
-            Log::info($th->getMessage());
-            DB::rollBack();
-            return response()->json(['message' => 'Create Order Failed!', 'success' => false], 500);
-        }
-
-        DB::commit();
-        return response()->json(['message' => 'Create Order Success!', 'success' => true], 200);
+        $this->orderService = $orderService;
+        $this->orderTrackService = $orderTrackService;
     }
 
     /**
-     * Display the specified resource.
+     * Save the Order.
+     *
+     * @param  App\Http\Requests\CreateOrderRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(CreateOrderRequest $request)
+    {
+        $data = $request->all();
+        $result = [];
+
+        try {
+            $order = $this->orderService->saveOrder($data);
+            $result['data'] = $order;
+        } catch (Exception $th) {
+            Log::info($th->getMessage());
+
+            $result['message'] = ['Create Order Failed!'];
+            return response()->json($result, Http::HTTP_RESPONSE_SERVER_ERROR);
+        }
+
+        $result['message'] = ['Create Order Success!'];
+        return response()->json($result, Http::HTTP_RESPONSE_SUCCESS);
+    }
+
+    /**
+     * Get the Order detail.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function orderDetail($id)
     {
-        $order = Order::with('orderTracks')->find($id);
-        if (empty($order)) {
-            return response()->json(['message' => 'Order Not Found!', 'success' => false], 404);
+        $result = [];
+
+        try {
+            $order = $this->orderService->getOrderById($id);
+            $result['data'] = $order;
+        } catch (Exception $th) {
+            Log::info($th->getMessage());
+
+            $result['message'] = ['Get Order Failed!'];
+            return response()->json($result, Http::HTTP_RESPONSE_SERVER_ERROR);
         }
 
-        return response()->json(['data' => $order, 'success' => true], 200);
+        if (empty($order)) {
+            $result['message'] = ['Order Not Found!'];
+            return response()->json($result, Http::HTTP_RESPONSE_NOT_FOUND);
+        }
+
+        $result['message'] = ['Create Order Success!'];
+        return response()->json($result, Http::HTTP_RESPONSE_SUCCESS);
     }
 
     /**
-     * Display the specified resource.
+     * Get the order's tracks by Order ID.
      *
-     * @param  int  $id
+     * @param  int  $orderId
      * @return \Illuminate\Http\Response
      */
-    public function orderTracks($id)
+    public function orderTracks($orderId)
     {
-        $orderTrack = OrderTrack::where(['order_id' => $id])->get();
-        if (count($orderTrack) == 0) {
-            return response()->json(['message' => 'Order Not Found!', 'success' => false], 404);
+        $result = [];
+
+        try {
+            $orderTracks = $this->orderTrackService->getOrderTrackByOrderId($orderId);
+            $result['data'] = $orderTracks;
+        } catch (Exception $th) {
+            Log::info($th->getMessage());
+
+            $result['message'] = ['Get Order tracks failed!'];
+            return response()->json($result, Http::HTTP_RESPONSE_SERVER_ERROR);
         }
 
-        return response()->json(['data' => $orderTrack, 'success' => true], 200);
+        if (count($orderTracks) == 0) {
+            $result['message'] = ['Order tracks not found!'];
+            return response()->json($result, Http::HTTP_RESPONSE_NOT_FOUND);
+        }
+
+        $result['message'] = ['Get Order tracks success!'];
+        return response()->json($result, Http::HTTP_RESPONSE_SUCCESS);
     }
 }
